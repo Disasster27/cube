@@ -14,7 +14,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
     scene.background = new THREE.Color(0xcccccc);
 
     const camera = new THREE.PerspectiveCamera( 85, width/height, 1, 5000 );
-    camera.position.set( 0, 300, 0 );
+    camera.position.set( 0, 500, 0 );
     camera.up.set(0, 1, 0);
     camera.lookAt(0, 0, 0);
 
@@ -24,125 +24,113 @@ document.addEventListener( 'DOMContentLoaded', () => {
     scene.add( light );
 
 
+   
+
+    
+
+
+    const obj = {
+        zet : 0,
+        farPlanePoint : [],
+        nearPlanePoint : [],
+        mesh : null,
+        meshCreate () {
+            const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
+            const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
+            const sphereMesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
+            sphereMesh.scale.set( 1, 1, 1 );
+            return sphereMesh;
+        },
+        drawPoint ( x, y , z, e  ) {
+            this.farPlanePoint = [];
+            this.nearPlanePoint = [];
+            this.zet = z;   
+            this.pointCreate ( x, y, z, this.zet );
+            this.pointCreate ( x, y + e, z, this.zet );
+            this.pointCreate ( x + e, y + e, z, this.zet ); 
+            this.pointCreate ( x + e, y, z, this.zet );
+        
+            this.pointCreate ( x, y, z + e, this.zet );
+            this.pointCreate ( x, y + e, z + e, this.zet );
+            this.pointCreate ( x + e, y + e, z + e, this.zet );
+            this.pointCreate ( x + e, y, z + e, this.zet );
+        },
+        pointCreate ( x, y, z, zet ) {
+            let sphereMesh = this.meshCreate ();
+            sphereMesh.position.x = x;
+            sphereMesh.position.y = y;
+            sphereMesh.position.z = z;
+            this.mesh.add( sphereMesh );
+            if ( z === zet ) {
+                this.farPlanePoint.push( sphereMesh );
+            } else {
+                this.nearPlanePoint.push( sphereMesh );
+            };
+        },
+        draw ( farPlanePoint,nearPlanePoint ) {
+            for ( let i = 0 ; i < arguments[0].length ; i++ ) {
+                const coordinate = [];
+                if ( arguments.length > 1 ) {
+                    coordinate.push( new THREE.Vector3( arguments[0][ i ].position.x, arguments[0][ i ].position.y, arguments[0][ i ].position.z ) );
+                    coordinate.push( new THREE.Vector3( arguments[1][ i ].position.x, arguments[1][ i ].position.y, arguments[1][ i ].position.z ) );
+                } else { 
+                    coordinate.push( new THREE.Vector3( arguments[0][ i ].position.x, arguments[0][ i ].position.y, arguments[0][ i ].position.z ) );
+                    const j = i === 3 ? 0 : i + 1;
+                    coordinate.push( new THREE.Vector3( arguments[0][ j ].position.x, arguments[0][ j ].position.y, arguments[0][ j ].position.z ) );
+                }
+                const geometry = new THREE.BufferGeometry().setFromPoints( coordinate );
+                const material = new THREE.LineBasicMaterial( { color: 0x000000 } );
+                const line = new THREE.Line( geometry, material );
+                this.mesh.add( line );
+            };
+        },
+        mainMeshCreate ( position ) {
+            const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
+            const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
+            this.mesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
+            this.mesh.scale.set( 1, 1, 1 );
+            this.mesh.position.x = Math.random() * 500 - 250 ;
+            this.mesh.position.y = Math.random() * 500 - 250 ;
+            this.mesh.position.z = Math.random() * 500 - 250 ;
+
+            this.mesh.scale.set( 1, 1, 1 );
+
+            this.mesh.rotation.x = Math.random() * 2 * Math.PI;
+            this.mesh.rotation.y = Math.random() * 2 * Math.PI;
+            this.mesh.rotation.z = Math.random() * 2 * Math.PI;
+
+            scene.add( this.mesh );
+        },
+        drawCube ( size ) {
+            this.mainMeshCreate (  );
+            this.drawPoint ( 0,0,0,size );
+            this.draw( this.farPlanePoint,this.nearPlanePoint )
+            this.draw( this.farPlanePoint )
+            this.draw( this.nearPlanePoint )
+
+        },
+    };
+
+
+    function drawCube ( count ) {
+        for ( let i = 0 ; i < count ; i ++ ) {
+            obj.drawCube ( parseInt(Math.random() * 50) + 10 );
+        };
+    };
+
     const gui = new dat.GUI();
 
-    
+    const controls = {
+        quantity : 10,
+    };
 
-
-    // const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
-    // const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
-    // const mesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
-    // mesh.scale.set( 1, 1, 1 );
-    // mesh.position.x = 10;
-    // mesh.position.y = 10;
-    // mesh.position.z = 10;
-    // mesh.scale.set( 1, 1, 1 );
-    // // console.log('mesh:', mesh)
-
-    // scene.add( mesh );
-
-const obj = {
-    zet : 0,
-    farPlanePoint : [],
-    nearPlanePoint : [],
-    mesh : null,
-    meshCreate () {
-        const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
-        const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
-        const sphereMesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
-        sphereMesh.scale.set( 1, 1, 1 );
-        return sphereMesh;
-    },
-    drawPoint ( x, y , z, e  ) {
-        this.farPlanePoint = [];
-        this.nearPlanePoint = [];
-        this.zet = z;   
-        this.pointCreate ( x, y, z, this.zet );
-        this.pointCreate ( x, y + e, z, this.zet );
-        this.pointCreate ( x + e, y + e, z, this.zet ); 
-        this.pointCreate ( x + e, y, z, this.zet );
-    
-        this.pointCreate ( x, y, z + e, this.zet );
-        this.pointCreate ( x, y + e, z + e, this.zet );
-        this.pointCreate ( x + e, y + e, z + e, this.zet );
-        this.pointCreate ( x + e, y, z + e, this.zet );
-    },
-    pointCreate ( x, y, z, zet ) {
-        // console.log(x, y, z, zet )
-        let sphereMesh = this.meshCreate ();
-        sphereMesh.position.x = x;
-        sphereMesh.position.y = y;
-        sphereMesh.position.z = z;
-        this.mesh.add( sphereMesh );
-        if ( z === zet ) {
-            this.farPlanePoint.push( sphereMesh );
-        } else {
-            this.nearPlanePoint.push( sphereMesh );
-        };
-    },
-    draw ( farPlanePoint,nearPlanePoint ) {
-    
-        // console.log(arguments)
-        // console.log(farPlanePoint)
-        // console.log(nearPlanePoint)
-        for ( let i = 0 ; i < arguments[0].length ; i++ ) {
-            const coordinate = [];
-            if ( arguments.length > 1 ) {
-                coordinate.push( new THREE.Vector3( arguments[0][ i ].position.x, arguments[0][ i ].position.y, arguments[0][ i ].position.z ) );
-                coordinate.push( new THREE.Vector3( arguments[1][ i ].position.x, arguments[1][ i ].position.y, arguments[1][ i ].position.z ) );
-            } else { 
-                coordinate.push( new THREE.Vector3( arguments[0][ i ].position.x, arguments[0][ i ].position.y, arguments[0][ i ].position.z ) );
-                const j = i === 3 ? 0 : i + 1;
-                coordinate.push( new THREE.Vector3( arguments[0][ j ].position.x, arguments[0][ j ].position.y, arguments[0][ j ].position.z ) );
-            }
-            const geometry = new THREE.BufferGeometry().setFromPoints( coordinate );
-            const material = new THREE.LineBasicMaterial( { color: 0x000000 } );
-            const line = new THREE.Line( geometry, material );
-            this.mesh.add( line );
-        };
-    },
-    mainMeshCreate ( position ) {
-        const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
-        const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
-        this.mesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
-        this.mesh.scale.set( 1, 1, 1 );
-        this.mesh.position.x = Math.random() * 500 - 250 ;
-        this.mesh.position.y = Math.random() * 500 - 250 ;
-        this.mesh.position.z = Math.random() * 500 - 250 ;
-
-        this.mesh.scale.set( 1, 1, 1 );
-
-        this.mesh.rotation.x = Math.random() * 2 * Math.PI;
-        this.mesh.rotation.y = Math.random() * 2 * Math.PI;
-        this.mesh.rotation.z = Math.random() * 2 * Math.PI;
-
-        scene.add( this.mesh );
-    },
-    drawCube ( size ) {
-        this.mainMeshCreate (  );
-        this.drawPoint ( 0,0,0,size );
-        this.draw( this.farPlanePoint,this.nearPlanePoint )
-        this.draw( this.farPlanePoint )
-        this.draw( this.nearPlanePoint )
-
-    },
-};
-
-
-
-
-function drawCube ( count ) {
-    for ( let i = 0 ; i < count ; i ++ ) {
-        obj.drawCube ( parseInt(Math.random() * 50) + 10 );
-    }
-}
-
-drawCube ( 56 )
-
-
-
-
-
+    let numberOfCubes = gui.add( controls, 'quantity' ).step( 1 )
+    drawCube ( controls.quantity );
+  
+    numberOfCubes.onChange( function(value){
+        scene.children.length = 1;
+        drawCube ( controls.quantity );
+     } );
 
 
 
@@ -154,7 +142,7 @@ drawCube ( 56 )
     function init () {
         raycaster = new THREE.Raycaster();
         renderer.domElement.addEventListener( 'click', raycast, false );
-        renderer.domElement.addEventListener( 'touchstart', raycast, false );
+        renderer.domElement.addEventListener( 'touchend', raycast, false );
     };
 
     function raycast ( e ) {
@@ -163,16 +151,16 @@ drawCube ( 56 )
         raycaster.setFromCamera( mouse, camera );    
         let intersects = raycaster.intersectObjects( scene.children, true );
 
-        // const lineArray = [];
         let meshColor = null;
         let positionCoordinatesString = '';
 
         for ( let i = 0; i < intersects.length; i++ ) {
-            // console.log(  intersects[ i ].object ); 
             if ( intersects[ i ].object.type == 'Mesh' ) {
+
                 meshColor = intersects[ i ].object.material.color;
-                // console.log( intersects[ i ].object.position );
+
                 const positionCoordinates = [];
+
                 positionCoordinates.push( intersects[ i ].object.position.x );
                 positionCoordinates.push( intersects[ i ].object.position.y );
                 positionCoordinates.push( intersects[ i ].object.position.z );
@@ -190,7 +178,7 @@ drawCube ( 56 )
                 let startCoordinatesString = startCoordinates.join();
                 let endCoordinatesString = endCoordinates.join();   
 
-                if ( startCoordinatesString ===positionCoordinatesString || endCoordinatesString === positionCoordinatesString ) {
+                if ( startCoordinatesString === positionCoordinatesString || endCoordinatesString === positionCoordinatesString ) {
                     intersects[ i ].object.material.color = meshColor;
                 } else { 
                 };
