@@ -13,7 +13,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
     scene.background = new THREE.Color(0xcccccc);
 
     const camera = new THREE.PerspectiveCamera( 85, width/height, 1, 5000 );
-    camera.position.set( 0, 300, 0 );
+    camera.position.set( 0, 1000, 0 );
     camera.up.set(0, 1, 0);
     camera.lookAt(0, 0, 0);
 
@@ -25,18 +25,20 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
    
     class Cube {
-        constructor ( size ) {
+        constructor ( size, count ) {
             // длина грани
             this.size = size;
             this.zet = 0;
             this.farPlanePoint = [];
             this.nearPlanePoint = [];
             this.mesh = null;
+            this.cubeQuantity = count;
             this.drawCube ( this.size );
         }
         // Mesh для вершин куба
         meshCreate () {
-            const sphereGeometry = new THREE.SphereBufferGeometry( 2, 6, 6 );
+            let i = this.SetRangeOfCoordinates().meshRadius;
+            const sphereGeometry = new THREE.SphereBufferGeometry( `${ i }`, 6, 6 );
             const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
             const sphereMesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
             sphereMesh.scale.set( 1, 1, 1 );
@@ -107,15 +109,36 @@ document.addEventListener( 'DOMContentLoaded', () => {
             const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
             this.mesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
             this.mesh.scale.set( 1, 1, 1 );
-            this.mesh.position.x = Math.random() * 500 - 250 ;
-            this.mesh.position.y = Math.random() * 500 - 250 ;
-            this.mesh.position.z = Math.random() * 500 - 250 ;
+            let i = this.SetRangeOfCoordinates().coordinate;
+
+            this.mesh.position.x = Math.random() * i - i / 2 ;
+            this.mesh.position.y = Math.random() * i - i / 2 ;
+            this.mesh.position.z = Math.random() * i - i / 2 ;
 
             this.mesh.rotation.x = Math.random() * 2 * Math.PI;
             this.mesh.rotation.y = Math.random() * 2 * Math.PI;
             this.mesh.rotation.z = Math.random() * 2 * Math.PI;
 
             scene.add( this.mesh );
+        }
+        // увеличивает диапазон координат и размер вершин при увеличении колличества отображаемых кубов
+        SetRangeOfCoordinates () {
+            let coordinate;
+            let meshRadius;
+            if ( this.cubeQuantity <= 100 ) {
+                coordinate = 800; 
+                meshRadius = 3;
+            } else if ( 100 < this.cubeQuantity <= 300 ) {
+                coordinate = 1500;
+                meshRadius = 4;
+            } else if ( 300 < this.cubeQuantity <= 700 ) {
+                coordinate = 2000;
+                meshRadius = 5;
+            } else if ( 700 < this.cubeQuantity  ) {
+                coordinate = 2800;
+                meshRadius = 6;
+            };
+            return { coordinate, meshRadius };
         }
         // финальная отрисовка экземпляка куба
         drawCube ( size ) {
@@ -130,7 +153,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
     // отрисовка всех кубов 
     function drawResult ( count ) {
         for ( let i = 0 ; i < count ; i ++ ) {
-            new Cube( parseInt(Math.random() * 100) + 10 )
+            new Cube( parseInt(Math.random() * 100) + 10, count )
         };
     };
 
@@ -142,7 +165,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
             quantity : 10,
         };
 
-        let numberOfCubes = gui.add( controls, 'quantity' ).step( 1 );
+        let numberOfCubes = gui.add( controls, 'quantity' ).min( 1 ).step( 1 );
     
         numberOfCubes.onChange( function( value ){
             scene.children.length = 1;
@@ -171,9 +194,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
             let meshColor = null;
             let positionCoordinatesString = '';
-            console.log(intersects)
             for ( let i = 0; i < intersects.length; i++ ) {
                 if ( intersects[ i ].object.type == 'Mesh' ) {
+                    // console.log(intersects[ i ].object)
                     // цвет вершины 
                     meshColor = intersects[ i ].object.material.color;
                     // координаты вершины для сравнения с координатами граней
