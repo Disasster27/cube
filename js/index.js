@@ -28,12 +28,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
         constructor ( size, count ) {
             // длина грани
             this.size = size;
-            this.zet = 0;
             this.farPlanePoint = [];
             this.nearPlanePoint = [];
             this.mesh = null;
             this.cubeQuantity = count;
-            this.drawCube ( this.size );
+            this.drawCube ( );
         }
         // Mesh для вершин куба
         meshCreate () {
@@ -45,29 +44,28 @@ document.addEventListener( 'DOMContentLoaded', () => {
             return sphereMesh;
         }
         // отрисовка вершин куба
-        drawPoint ( x, y , z, size  ) {
+        drawPoint ( x, y , z ) {
             this.farPlanePoint = [];
-            this.nearPlanePoint = [];
-            this.zet = z;   
-            this.pointCreate ( x, y, z, this.zet );
-            this.pointCreate ( x, y + size, z, this.zet );
-            this.pointCreate ( x + size, y + size, z, this.zet ); 
-            this.pointCreate ( x + size, y, z, this.zet );
+            this.nearPlanePoint = []; 
+            this.pointCreate ( x, y, z );
+            this.pointCreate ( x, y + this.size, z );
+            this.pointCreate ( x + this.size, y + this.size, z ); 
+            this.pointCreate ( x + this.size, y, z );
         
-            this.pointCreate ( x, y, z + size, this.zet );
-            this.pointCreate ( x, y + size, z + size, this.zet );
-            this.pointCreate ( x + size, y + size, z + size, this.zet );
-            this.pointCreate ( x + size, y, z + size, this.zet );
+            this.pointCreate ( x, y, z + this.size );
+            this.pointCreate ( x, y + this.size, z + this.size );
+            this.pointCreate ( x + this.size, y + this.size, z + this.size );
+            this.pointCreate ( x + this.size, y, z + this.size );
         }
         // задание координат вершин экземпляра куба
-        pointCreate ( x, y, z, zet ) {
+        pointCreate ( x, y, z ) {
             const sphereMesh = this.meshCreate ();
             sphereMesh.position.x = x;
             sphereMesh.position.y = y;
             sphereMesh.position.z = z;
             this.mesh.add( sphereMesh );
             
-            if ( z === zet ) {
+            if ( z === 0 ) {
                 // массив с координатами дальней плоскости экземпляра куба
                 this.farPlanePoint.push( sphereMesh );
             } else {
