@@ -109,7 +109,7 @@ const obj = {
         this.mesh.position.x = Math.random() * 500 - 250 ;
         this.mesh.position.y = Math.random() * 500 - 250 ;
         this.mesh.position.z = Math.random() * 500 - 250 ;
-        
+
         this.mesh.scale.set( 1, 1, 1 );
 
         this.mesh.rotation.x = Math.random() * 2 * Math.PI;
@@ -154,6 +154,7 @@ drawCube ( 56 )
     function init () {
         raycaster = new THREE.Raycaster();
         renderer.domElement.addEventListener( 'click', raycast, false );
+        renderer.domElement.addEventListener( 'touchstart', raycast, false );
     };
 
     function raycast ( e ) {
