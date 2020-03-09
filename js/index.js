@@ -106,18 +106,20 @@ const obj = {
         const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
         this.mesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
         this.mesh.scale.set( 1, 1, 1 );
-        this.mesh.position.x = (Math.random() * 10) * position;
-        // console.log(this.mesh.position.x)
-        this.mesh.position.y = (Math.random() * 10) * position;
-        this.mesh.position.z = (Math.random() * 10) * position;
+        this.mesh.position.x = Math.random() * 500 - 250 ;
+        this.mesh.position.y = Math.random() * 500 - 250 ;
+        this.mesh.position.z = Math.random() * 500 - 250 ;
+        
         this.mesh.scale.set( 1, 1, 1 );
-        // console.log('mesh:', mesh)
+
+        this.mesh.rotation.x = Math.random() * 2 * Math.PI;
+        this.mesh.rotation.y = Math.random() * 2 * Math.PI;
+        this.mesh.rotation.z = Math.random() * 2 * Math.PI;
 
         scene.add( this.mesh );
-        // return mesh;
     },
     drawCube ( size ) {
-        this.mainMeshCreate ( Math.random() * 50 );
+        this.mainMeshCreate (  );
         this.drawPoint ( 0,0,0,size );
         this.draw( this.farPlanePoint,this.nearPlanePoint )
         this.draw( this.farPlanePoint )
@@ -126,9 +128,24 @@ const obj = {
     },
 };
 
-    obj.drawCube ( 25 );
-    obj.drawCube ( 25 );
-    obj.drawCube ( 25 );
+
+
+
+function drawCube ( count ) {
+    for ( let i = 0 ; i < count ; i ++ ) {
+        obj.drawCube ( parseInt(Math.random() * 50) + 10 );
+    }
+}
+
+drawCube ( 56 )
+
+
+
+
+
+
+
+
 
 
     let raycaster, mouse = { x : 0, y : 0 };
@@ -150,10 +167,10 @@ const obj = {
         let positionCoordinatesString = '';
 
         for ( let i = 0; i < intersects.length; i++ ) {
-            console.log(  intersects[ i ].object ); 
+            // console.log(  intersects[ i ].object ); 
             if ( intersects[ i ].object.type == 'Mesh' ) {
                 meshColor = intersects[ i ].object.material.color;
-                console.log( intersects[ i ].object.position );
+                // console.log( intersects[ i ].object.position );
                 const positionCoordinates = [];
                 positionCoordinates.push( intersects[ i ].object.position.x );
                 positionCoordinates.push( intersects[ i ].object.position.y );
