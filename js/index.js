@@ -9,12 +9,11 @@ document.addEventListener( 'DOMContentLoaded', () => {
     
     const renderer = new THREE.WebGLRenderer( { canvas : canvas, alpha : true } );
     // renderer.setClearColor( 0xaaaaaa )
-    // console.log( renderer )
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xcccccc);
 
     const camera = new THREE.PerspectiveCamera( 85, width/height, 1, 5000 );
-    camera.position.set( 0, 500, 0 );
+    camera.position.set( 0, 300, 0 );
     camera.up.set(0, 1, 0);
     camera.lookAt(0, 0, 0);
 
@@ -29,7 +28,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
     
 
 
-    const obj = {
+    const cube = {
         zet : 0,
         farPlanePoint : [],
         nearPlanePoint : [],
@@ -56,7 +55,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
             this.pointCreate ( x + e, y, z + e, this.zet );
         },
         pointCreate ( x, y, z, zet ) {
-            let sphereMesh = this.meshCreate ();
+            const sphereMesh = this.meshCreate ();
             sphereMesh.position.x = x;
             sphereMesh.position.y = y;
             sphereMesh.position.z = z;
@@ -68,21 +67,32 @@ document.addEventListener( 'DOMContentLoaded', () => {
             };
         },
         draw ( farPlanePoint,nearPlanePoint ) {
+            // console.log(arguments)
             for ( let i = 0 ; i < arguments[0].length ; i++ ) {
                 const coordinate = [];
-                if ( arguments.length > 1 ) {
-                    coordinate.push( new THREE.Vector3( arguments[0][ i ].position.x, arguments[0][ i ].position.y, arguments[0][ i ].position.z ) );
-                    coordinate.push( new THREE.Vector3( arguments[1][ i ].position.x, arguments[1][ i ].position.y, arguments[1][ i ].position.z ) );
-                } else { 
-                    coordinate.push( new THREE.Vector3( arguments[0][ i ].position.x, arguments[0][ i ].position.y, arguments[0][ i ].position.z ) );
-                    const j = i === 3 ? 0 : i + 1;
-                    coordinate.push( new THREE.Vector3( arguments[0][ j ].position.x, arguments[0][ j ].position.y, arguments[0][ j ].position.z ) );
-                }
+                coordinate.push( new THREE.Vector3( arguments[ 0 ][ i ].position.x, arguments[ 0 ][ i ].position.y, arguments[ 0 ][ i ].position.z ) );
+                coordinate.push( new THREE.Vector3( arguments[ 1 ][ i ].position.x, arguments[ 1 ][ i ].position.y, arguments[ 1 ][ i ].position.z ) );
                 const geometry = new THREE.BufferGeometry().setFromPoints( coordinate );
                 const material = new THREE.LineBasicMaterial( { color: 0x000000 } );
                 const line = new THREE.Line( geometry, material );
                 this.mesh.add( line );
             };
+            for ( let g = 0 ; g < arguments.length ; g++  ) {
+                for ( let i = 0 ; i < arguments[g].length ; i++ ) {
+                    const coordinate = [];
+
+                    coordinate.push( new THREE.Vector3( arguments[ g ][ i ].position.x, arguments[ g ][ i ].position.y, arguments[ g ][ i ].position.z ) );
+                    const j = i === 3 ? 0 : i + 1;
+                    coordinate.push( new THREE.Vector3( arguments[ g ][ j ].position.x, arguments[ g ][ j ].position.y, arguments[ g ][ j ].position.z ) );
+
+                    const geometry = new THREE.BufferGeometry().setFromPoints( coordinate );
+                    const material = new THREE.LineBasicMaterial( { color: 0x000000 } );
+                    const line = new THREE.Line( geometry, material );
+                    this.mesh.add( line );
+                }
+            }
+            
+            
         },
         mainMeshCreate ( position ) {
             const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
@@ -93,8 +103,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
             this.mesh.position.y = Math.random() * 500 - 250 ;
             this.mesh.position.z = Math.random() * 500 - 250 ;
 
-            this.mesh.scale.set( 1, 1, 1 );
-
             this.mesh.rotation.x = Math.random() * 2 * Math.PI;
             this.mesh.rotation.y = Math.random() * 2 * Math.PI;
             this.mesh.rotation.z = Math.random() * 2 * Math.PI;
@@ -104,18 +112,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
         drawCube ( size ) {
             this.mainMeshCreate (  );
             this.drawPoint ( 0,0,0,size );
-            this.draw( this.farPlanePoint,this.nearPlanePoint )
-            this.draw( this.farPlanePoint )
-            this.draw( this.nearPlanePoint )
+
+            this.draw( this.farPlanePoint,this.nearPlanePoint );
 
         },
-    };
-
-
-    function drawCube ( count ) {
-        for ( let i = 0 ; i < count ; i ++ ) {
-            obj.drawCube ( parseInt(Math.random() * 50) + 10 );
-        };
+        drawResult ( count ) {
+            for ( let i = 0 ; i < count ; i ++ ) {
+                cube.drawCube ( parseInt(Math.random() * 50) + 10 );
+            };
+        },
     };
 
     const gui = new dat.GUI();
@@ -125,18 +130,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
     };
 
     let numberOfCubes = gui.add( controls, 'quantity' ).step( 1 )
-    drawCube ( controls.quantity );
+    cube.drawResult ( controls.quantity );
   
-    numberOfCubes.onChange( function(value){
+    numberOfCubes.onChange( function( value ){
         scene.children.length = 1;
-        drawCube ( controls.quantity );
+        cube.drawResult ( controls.quantity );
      } );
 
 
 
 
 
-    let raycaster, mouse = { x : 0, y : 0 };
+    let raycaster, mouse = new THREE.Vector2();
     init();
 
     function init () {
