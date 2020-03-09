@@ -36,7 +36,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
         }
         // Mesh для вершин куба
         meshCreate () {
-            const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
+            const sphereGeometry = new THREE.SphereBufferGeometry( 2, 6, 6 );
             const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
             const sphereMesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
             sphereMesh.scale.set( 1, 1, 1 );
@@ -119,7 +119,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
         }
         // финальная отрисовка экземпляка куба
         drawCube ( size ) {
-            console.log(size)
+            // console.log(size)
             this.mainMeshCreate (  );
             this.drawPoint ( 0,0,0,size );
             this.drawLine( this.farPlanePoint,this.nearPlanePoint );
@@ -171,7 +171,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
             let meshColor = null;
             let positionCoordinatesString = '';
-
+            console.log(intersects)
             for ( let i = 0; i < intersects.length; i++ ) {
                 if ( intersects[ i ].object.type == 'Mesh' ) {
                     // цвет вершины 
@@ -181,28 +181,34 @@ document.addEventListener( 'DOMContentLoaded', () => {
                     positionCoordinates.push( intersects[ i ].object.position.x );
                     positionCoordinates.push( intersects[ i ].object.position.y );
                     positionCoordinates.push( intersects[ i ].object.position.z );
+                    // строчное значение
                     positionCoordinatesString = positionCoordinates.join();
-                };
-
-                if ( intersects[ i ].object.type == 'Line' ) {
-                    const lineCoordinates = [];
-                    intersects[ i ].object.geometry.attributes.position.array.forEach( elem => {
+            
+                    for ( let key in intersects[ i ].object.parent.children ) {
+                        // с 8 позиции идут дочерние элементы с type : line
+                        if ( key > 7 ) {
+                            const lineCoordinates = [];
+                            intersects[ i ].object.parent.children[key].geometry.attributes.position.array.forEach( elem => {
                             lineCoordinates.push( elem );
-                    } );
-                    // получения координат начала и конца грани
-                    const startCoordinates = lineCoordinates.slice( 0, 3 );
-                    const endCoordinates = lineCoordinates.slice( 3,  );
-                    let startCoordinatesString = startCoordinates.join();
-                    let endCoordinatesString = endCoordinates.join();   
-                    // проверка на принадлежность рёбер к вершине
-                    if ( startCoordinatesString === positionCoordinatesString || endCoordinatesString === positionCoordinatesString ) {
-                        // смена цвета
-                        intersects[ i ].object.material.color = meshColor;
+                            } );
+                            // получения координат начала и конца грани
+                            const startCoordinates = lineCoordinates.slice( 0, 3 );
+                            const endCoordinates = lineCoordinates.slice( 3,  );
+                            // их строчное значение
+                            let startCoordinatesString = startCoordinates.join();
+                            let endCoordinatesString = endCoordinates.join();
+                            // проверка на принадлежность рёбер к вершине 
+                            if ( startCoordinatesString === positionCoordinatesString || endCoordinatesString === positionCoordinatesString ) {
+                                // смена цвета
+                                intersects[ i ].object.parent.children[key].material.color = meshColor;
+                            };
+                        };
                     };
                 };
             };
         };
-    }
+    };
+
 
     function loop ( ) {
         TWEEN.update();
