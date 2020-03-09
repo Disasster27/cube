@@ -24,22 +24,22 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 
    
-
-    
-
-
-    const cube = {
-        zet : 0,
-        farPlanePoint : [],
-        nearPlanePoint : [],
-        mesh : null,
+    class Cube {
+        constructor ( size ) {
+            this.size = size;
+            this.zet = 0;
+            this.farPlanePoint = [];
+            this.nearPlanePoint = [];
+            this.mesh = null;
+            this.drawCube ( size );
+        }
         meshCreate () {
             const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
             const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
             const sphereMesh = new THREE.Mesh( sphereGeometry, sphereMaterial );
             sphereMesh.scale.set( 1, 1, 1 );
             return sphereMesh;
-        },
+        }
         drawPoint ( x, y , z, e  ) {
             this.farPlanePoint = [];
             this.nearPlanePoint = [];
@@ -53,7 +53,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
             this.pointCreate ( x, y + e, z + e, this.zet );
             this.pointCreate ( x + e, y + e, z + e, this.zet );
             this.pointCreate ( x + e, y, z + e, this.zet );
-        },
+        }
         pointCreate ( x, y, z, zet ) {
             const sphereMesh = this.meshCreate ();
             sphereMesh.position.x = x;
@@ -65,9 +65,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
             } else {
                 this.nearPlanePoint.push( sphereMesh );
             };
-        },
+        }
         draw ( farPlanePoint,nearPlanePoint ) {
-            // console.log(arguments)
             for ( let i = 0 ; i < arguments[0].length ; i++ ) {
                 const coordinate = [];
                 coordinate.push( new THREE.Vector3( arguments[ 0 ][ i ].position.x, arguments[ 0 ][ i ].position.y, arguments[ 0 ][ i ].position.z ) );
@@ -89,11 +88,9 @@ document.addEventListener( 'DOMContentLoaded', () => {
                     const material = new THREE.LineBasicMaterial( { color: 0x000000 } );
                     const line = new THREE.Line( geometry, material );
                     this.mesh.add( line );
-                }
-            }
-            
-            
-        },
+                };
+            }; 
+        }
         mainMeshCreate ( position ) {
             const sphereGeometry = new THREE.SphereBufferGeometry( 1, 6, 6 );
             const sphereMaterial = new THREE.MeshPhongMaterial( { color: Math.random() * 0xffffff } );
@@ -108,19 +105,26 @@ document.addEventListener( 'DOMContentLoaded', () => {
             this.mesh.rotation.z = Math.random() * 2 * Math.PI;
 
             scene.add( this.mesh );
-        },
+        }
         drawCube ( size ) {
             this.mainMeshCreate (  );
             this.drawPoint ( 0,0,0,size );
 
             this.draw( this.farPlanePoint,this.nearPlanePoint );
 
-        },
+        }
         drawResult ( count ) {
             for ( let i = 0 ; i < count ; i ++ ) {
-                cube.drawCube ( parseInt(Math.random() * 50) + 10 );
+                this.drawCube ( parseInt(Math.random() * 50) + 10 );
             };
-        },
+        }
+    };
+    
+
+    function drawResult ( count ) {
+        for ( let i = 0 ; i < count ; i ++ ) {
+            new Cube( parseInt(Math.random() * 50) + 10 )
+        };
     };
 
     const gui = new dat.GUI();
@@ -129,15 +133,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
         quantity : 10,
     };
 
-    let numberOfCubes = gui.add( controls, 'quantity' ).step( 1 )
-    cube.drawResult ( controls.quantity );
+    let numberOfCubes = gui.add( controls, 'quantity' ).step( 1 );
+    drawResult ( controls.quantity );
   
     numberOfCubes.onChange( function( value ){
         scene.children.length = 1;
-        cube.drawResult ( controls.quantity );
+        drawResult ( controls.quantity );
      } );
-
-
 
 
 
