@@ -180,21 +180,43 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
         function init () {
             raycaster = new THREE.Raycaster();
+
+
             renderer.domElement.addEventListener( 'click', raycast, false );
             renderer.domElement.addEventListener( 'touchend', raycast, false );
         };
 
         function raycast ( e ) {
-            mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-            mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+            console.log(e.clientX / window.innerWidth);
+            if ( e.clientX === undefined ) {
+                console.log(1)
+                console.log(e.changedTouches[0].pageX / window.innerWidth)
+                mouse.x = ( e.changedTouches[0].pageX / window.innerWidth ) * 2 - 1;
+                mouse.y = - ( e.changedTouches[0].pageY / window.innerHeight ) * 2 + 1;
+            } else {
+                console.log(2)
+                console.log(e.clientX / window.innerWidth);
+                mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+                mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+            }
+
+
+            // mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+            // mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
             raycaster.setFromCamera( mouse, camera );    
             let intersects = raycaster.intersectObjects( scene.children, true );
-
+            console.log(intersects)
+            // console.log( e )
+            // console.log(window.innerWidth)
+            // console.log(mouse.x, mouse.y)
+            
+            // console.log(e.changedTouches[0].pageX)
             let meshColor = null;
             let positionCoordinatesString = '';
             for ( let i = 0; i < intersects.length; i++ ) {
                 if ( intersects[ i ].object.type == 'Mesh' ) {
-                    // console.log(intersects[ i ].object)
+                    console.log(intersects[ i ].object)
                     // цвет вершины 
                     meshColor = intersects[ i ].object.material.color;
                     // координаты вершины для сравнения с координатами граней
